@@ -8,30 +8,48 @@
             <h1 class="my-4">Page Heading
                 <small>Secondary Text</small>
             </h1>
-
+@foreach($posts as $post)
             <!-- Blog Post -->
             <div class="card mb-4">
-                <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                <img class="card-img-top" src="{{$post->image}}" alt="Card image cap">
                 <div class="card-body">
-                    <h2 class="card-title">Post Title</h2>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla? Quos cum ex quis soluta, a laboriosam. Dicta expedita corporis animi vero voluptate voluptatibus possimus, veniam magni quis!</p>
-                    <a href="#" class="btn btn-primary">Read More &rarr;</a>
+                    <h2 class="card-title">{{$post->title}}</h2>
+                    <p class="card-text">{{mb_substr($post->body, 0, 150)}} ...</p>
+                    <a href="{{route('single_post', $post->id)}}" class="btn btn-primary">Read More &rarr;</a>
                 </div>
                 <div class="card-footer text-muted">
-                    Posted on January 1, 2017 by
-                    <a href="#">Start Bootstrap</a>
+                    Posted on {{$post->created_at}} by
+                    <a href="{{route('post_by_author', $post->author->key)}}">{{$post->author->name}}</a>
+                </div>
+                <div class="card-footer text-muted">
+                    Categories:<br>
+                    @foreach($post->category as $category)
+                        <a style="color: red"
+                        href="{{route('post_by_category', $category->key)}}">{{$category->category}} </a>
+                    @endforeach
                 </div>
             </div>
+@endforeach
 
             <!-- Pagination -->
             <ul class="pagination justify-content-center mb-4">
-                <li class="page-item">
-                    <a class="page-link" href="#">&larr; Older</a>
-                </li>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">Newer &rarr;</a>
-                </li>
+                @if ($posts->currentPage() != 1)
+                    <li class="page-item"><a class="page-link" href="?page=1">В начало</a></li>
+                    <li class="page-item"><a class="page-link" href="{{$posts->previousPageUrl()}}"><=</a></li>
+                @endif
+                @if($posts->count()>1)
+                    @for($count=1; $count<=$posts->LastPage(); $count++)
+                        @if($count>$posts->currentPage()-3 and $count<$posts->currentPage()+3)
+                                <li class="page-item @if($count==$posts->currentPage()) active @endif
+                                    ")><a class="page-link" href="?page={{$count}}">{{$count}}</a></li>
+                            @endif
+                        @endfor
+                    @endif
+                    @if ($posts->currentPage() != $posts->LastPage())
+                        <li class="page-item"><a class="page-link" href="{{$posts->nextPageUrl()}}">=></a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{$posts->lastPage()}}">В конец</a></li>
+                    @endif
             </ul>
-
         </div>
+
 @endsection
